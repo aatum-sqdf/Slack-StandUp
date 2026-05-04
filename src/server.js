@@ -31,15 +31,16 @@ app.post(
       return res.status(200).json({ response_type: 'ephemeral', text: parsed.error });
     }
 
+    const count = parsed.items.length;
     res.status(200).json({
       response_type: 'ephemeral',
-      text: `Got it — adding to standup for ${parsed.targetDate}…`,
+      text: `Got it — adding ${count === 1 ? '1 item' : `${count} items`} to standup for ${parsed.targetDate}…`,
     });
 
     setImmediate(() =>
       handleAsync({
         dateString: parsed.targetDate,
-        itemText: parsed.item,
+        items: parsed.items,
         userName,
         responseUrl,
       })
@@ -47,10 +48,10 @@ app.post(
   }
 );
 
-async function handleAsync({ dateString, itemText, userName, responseUrl }) {
+async function handleAsync({ dateString, items, userName, responseUrl }) {
   try {
-    const { pageUrl, created } = await addItem({ dateString, itemText, userName });
-    await postFinal(responseUrl, successPayload({ dateString, itemText, pageUrl, created }));
+    const { pageUrl, created } = await addItem({ dateString, items, userName });
+    await postFinal(responseUrl, successPayload({ dateString, items, pageUrl, created }));
   } catch (err) {
     console.error('Notion error:', err);
     const errorMessage = (err && err.message) ? err.message : 'unknown error';

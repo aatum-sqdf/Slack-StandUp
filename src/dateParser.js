@@ -85,20 +85,27 @@ function parseStandupInput(rawText, pstNow) {
   if (tokens.length >= 2 && tokens[0].toLowerCase() === 'next' && tokens[1].toLowerCase() === 'standup') {
     const item = tokens.slice(2).join(' ').trim();
     if (!item) return { error: 'Provide an item after `next standup`.' };
-    return { targetDate: resolveTarget(null, 'next standup', pstNow), item };
+    return { targetDate: resolveTarget(null, 'next standup', pstNow), items: splitItems(item) };
   }
 
   const firstResolved = resolveTarget(tokens[0], null, pstNow);
   if (firstResolved) {
     const item = tokens.slice(1).join(' ').trim();
     if (!item) return { error: `Provide an item after \`${tokens[0]}\`.` };
-    return { targetDate: firstResolved, item };
+    return { targetDate: firstResolved, items: splitItems(item) };
   }
 
   return {
     targetDate: pstNow.hour < STANDUP_HOUR_PST ? pstNow.date : addDays(pstNow.date, 1),
-    item: text,
+    items: splitItems(text),
   };
+}
+
+function splitItems(itemText) {
+  return itemText
+    .split('|')
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
 }
 
 module.exports = { nowPST, parseStandupInput, addDays };

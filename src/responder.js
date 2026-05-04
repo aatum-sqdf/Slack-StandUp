@@ -17,9 +17,10 @@ async function postFinal(responseUrl, payload) {
   }
 }
 
-function successPayload({ dateString, itemText, pageUrl, created }) {
+function successPayload({ dateString, items, pageUrl, created }) {
   const lead = created ? 'Created standup for' : 'Added to standup for';
-  return { text: `${lead} ${dateString}: "${itemText}"\n${pageUrl}` };
+  const bullets = items.map(i => `• ${i}`).join('\n');
+  return { text: `${lead} ${dateString}:\n${bullets}\n${pageUrl}` };
 }
 
 function failurePayload({ errorMessage }) {

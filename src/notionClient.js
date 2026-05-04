@@ -38,22 +38,20 @@ async function createDatePage(databaseId, dateString) {
   }
 }
 
-async function appendBullet(pageId, text) {
+async function appendBullets(pageId, texts) {
   await notion().blocks.children.append({
     block_id: pageId,
-    children: [
-      {
-        object: 'block',
-        type: 'bulleted_list_item',
-        bulleted_list_item: {
-          rich_text: [{ type: 'text', text: { content: text } }],
-        },
+    children: texts.map(text => ({
+      object: 'block',
+      type: 'bulleted_list_item',
+      bulleted_list_item: {
+        rich_text: [{ type: 'text', text: { content: text } }],
       },
-    ],
+    })),
   });
 }
 
-async function addItem({ dateString, itemText, userName }) {
+async function addItem({ dateString, items, userName }) {
   const databaseId = process.env.NOTION_DATABASE_ID;
   if (!databaseId) throw new Error('NOTION_DATABASE_ID is not set');
 
@@ -64,10 +62,10 @@ async function addItem({ dateString, itemText, userName }) {
     created = true;
   }
 
-  const bulletText = userName ? `@${userName}: ${itemText}` : itemText;
-  await appendBullet(page.id, bulletText);
+  const bulletTexts = items.map(item => userName ? `@${userName}: ${item}` : item);
+  await appendBullets(page.id, bulletTexts);
 
-  return { pageUrl: page.url, created };
+  return { pageUrl: page.url, created, items };
 }
 
 module.exports = { addItem };
