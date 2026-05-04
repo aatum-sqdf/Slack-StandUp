@@ -20,7 +20,7 @@ async function postFinal(responseUrl, payload) {
 function successPayload({ dateString, items, pageUrl, created }) {
   const lead = created ? 'Created standup for' : 'Added to standup for';
   const bullets = items.map(i => `• ${i}`).join('\n');
-  return { text: `${lead} ${dateString}:\n${bullets}\n${pageUrl}` };
+  return { response_type: 'in_channel', text: `${lead} ${dateString}:\n${bullets}\n${pageUrl}` };
 }
 
 function failurePayload({ errorMessage }) {
